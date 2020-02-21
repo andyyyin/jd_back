@@ -3,7 +3,6 @@ const app = express();
 const bodyParser = require('body-parser')
 
 const PORT = 3389
-const HOST_NAME = '0.0.0.0'
 
 app.use((req, res, next) => {
   // 设置是否运行客户端设置 withCredentials
@@ -36,6 +35,6 @@ app.get('/see', (req, res) => {
 
 /* ----------------------------------------------- */
 
-app.listen(PORT, HOST_NAME, () => {
+app.listen(PORT, () => {
   console.log(`rising chaos listening on port ${PORT}`)
 })
