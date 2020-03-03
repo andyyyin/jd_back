@@ -17,7 +17,7 @@ const connect = () => {
 }
 
 const dateFilter = (data) => {
-  const toLongTargetKeys = ['time', 'start']
+  const toLongTargetKeys = ['time', 'start', 'end']
   const toStringTargetKeys = ['pid']
   const filter = (data) => {
     toLongTargetKeys.forEach(key => {

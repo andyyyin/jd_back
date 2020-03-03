@@ -1,5 +1,6 @@
 const axios = require('axios')
 const {JD_AREA} = require('./constant')
+const iconv = require('iconv-lite');
 
 const api = {};
 
@@ -29,11 +30,12 @@ api.getProduct2 = async id => {
   const result = await axios({
     method: 'get',
     url,
+    responseType: 'arraybuffer',
     headers: {
       'Accept': '*/*'
     }
   });
-  return result.data
+  return JSON.parse(iconv.decode(result.data, 'gbk'))
 }
 
 api.getExtraInfo = async id => {

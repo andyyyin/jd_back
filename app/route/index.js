@@ -4,10 +4,11 @@ module.exports = function(app, db) {
 
   app.use('/jd*', (req, res, next) => {
     if (jd.state.isPending()) {
-      res.send({error: 'pending'})
+      res.status(500).send('pending')
     } else {
       next()
     }
+    // res.status(500).send('pending')
   });
 
   app.get('/jd', (req, res) => {

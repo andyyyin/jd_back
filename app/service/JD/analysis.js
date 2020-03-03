@@ -1,7 +1,6 @@
 const {plusOrZero, toMoney, numberFix2} = require("../../function")
 
-// const promReg = /每?满(\d+)元.*?减(\d+)[元%]/i
-const promReg = /每?满([\d\.]+)([元件]).*?[减打]([\d\.]+)([元%折])/i
+const promReg = /每?满([\d\.]+)([元件]).*?[减打享]([\d\.]+)([元%折])/i
 
 
 const fillMoneyOffs = (product) => {
