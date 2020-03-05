@@ -9,12 +9,8 @@ const post = (url, params) => {
   return axios.post(API_ROOT + url, params)
 }
 
-
 const jdRequest = async ({url, method, params}) => {
   const headers = {}
-  // if (method === 'post') {
-  //   headers['content-type'] = 'application/x-www-form-urlencoded'
-  // }
   try {
     const response = await axios({
       url: API_ROOT + url,
@@ -25,35 +21,18 @@ const jdRequest = async ({url, method, params}) => {
     return response.data
   } catch (e) {
     if (e.response && e.response.data && e.response.data === 'pending') {
-      alert(e.message) // todo
+      console.error(e.message) // todo
     } else {
-      alert(e.message)
+      console.error(e.message)
     }
   }
 }
 
 
 jdRequest({
-  url: 'jd/delete',
-  method: 'post',
-  params: {
-    pid: 100003312839
-  }
-}).then()
+  url: 'jd/100003312839/history',
+  method: 'get',
+}).then(result => {
+  console.log(result)
+})
 
-
-
-
-// const run = async () => {
-//   try{
-//     const data = await get('jd/')
-//     console.log(data)
-//   } catch (e) {
-//     console.log(e)
-//   }
-// }
-// run().then()
-
-// post('jd/add', {pid: 100003312839}).then(data => {
-//   console.log(data.data)
-// })

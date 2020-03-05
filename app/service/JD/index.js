@@ -62,6 +62,11 @@ const loadProducts = async (id) => {
     // todo priceInfo.m 是什么
 
     const {coupons} = await api.getTicket(id, cid)
+    /* temp debug */
+    if ((id+'') === '100003312839') {
+      console.log(coupons)
+    }
+    /* ---------- */
     const tickets = []
     coupons.forEach(c => {
       const {quota, discount} = c
@@ -110,6 +115,9 @@ jd.getAllProduct = () => _productMap
 
 jd.startTimingTask = () => {
   timingTask.start(loadProducts)
+}
+jd.getProductHistory = (id) => {
+  return store.getProductHistory(id)
 }
 jd.state = state
 

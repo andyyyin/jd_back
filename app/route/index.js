@@ -16,7 +16,7 @@ module.exports = function(app, db) {
   })
 
   app.post('/jd/add', (req, res) => {
-    const pid = req.body.pid
+    const pid = req.body.pid + ''
     jd.addProductId(pid).then(productMap => {
       res.send(productMap)
     }).catch(err => {
@@ -34,7 +34,16 @@ module.exports = function(app, db) {
   })
 
   app.get('/jd/:pid', (req, res) => {
-    const pid = req.params.id
+    const pid = req.params.pid
     res.send(jd.getProduct(pid))
+  })
+
+  app.get('/jd/:pid/history', (req, res) => {
+    const pid = req.params.pid + ''
+    jd.getProductHistory(pid).then(result => {
+      res.send(result)
+    }).catch(err => {
+      res.send(err)
+    })
   })
 }

@@ -57,29 +57,11 @@ const pushTimingTask = async (record) => {
   return DB.insertData(record, TIMING_TASK_COL, DB_NAME)
 }
 
+const getProductHistory = async (pid) => {
+  let result = await DB.getData({pid}, PRODUCT_DATA_COL, DB_NAME)
+  return result && result.map(({pid, price, prom, time}) => ({pid, price, prom, time}))
+}
 
-// const saveJDData = (data) => {
-//   if (typeof data === 'string') {
-//     return AsyncStorage.setItem(DATA_NAME, data)
-//   } else {
-//     return AsyncStorage.setItem(DATA_NAME, JSON.stringify(data))
-//   }
-// }
-//
-// const clearJDData = () => {
-//   AsyncStorage.removeItem(DATA_NAME)
-// }
-//
-//
-//
-// const compareAndSaveProduct = (product) => {
-//   const {id, price, p_price, promRank} = data
-//
-// }
-//
-// const getProductData = (id) => {
-//   return AsyncStorage.getItem(getProductDataKey(id))
-// }
 
 module.exports = {
   loadProductList,
@@ -88,4 +70,5 @@ module.exports = {
   checkAndPushNewRecords,
   getLastTask,
   pushTimingTask,
+  getProductHistory,
 }
