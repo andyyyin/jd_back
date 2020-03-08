@@ -58,8 +58,40 @@ const pushTimingTask = async (record) => {
 }
 
 const getProductHistory = async (pid) => {
-  let result = await DB.getData({pid}, PRODUCT_DATA_COL, DB_NAME)
-  return result && result.map(({pid, price, prom, time}) => ({pid, price, prom, time}))
+  let rawData = await DB.getData({pid}, PRODUCT_DATA_COL, DB_NAME)
+  const result = []
+
+  rawData.forEach(({price, prom, time}, index) => {
+    if (!prom) prom = price
+    // const dateObj = new Date(parseInt(time))
+    // const month = dateObj.getMonth() + 1
+    // const day = dateObj.getDate()
+    // const date = month + '.' + day
+    const dayTime = new Date(new Date(parseInt(time)).setHours(0, 0, 0, 0)).getTime()
+
+    const prev = result[result.length - 1]
+    if (!prev || prev.dayTime !== dayTime) {
+      result.push({price, prom, dayTime})
+    } else {
+      if (Number(price) < Number(prev.price)) prev.price = price
+      if (Number(prom) < Number(prev.prom)) prev.prom = prom
+
+      /* 如果一条数据是当天的最后一条，而它的值与当天最低值不相等，并且下一条数据不是第二天的
+      * 那么就造一条第二天的数据，值等于当前数据，防止第二天的数据被当天的最低数据覆盖 */
+
+      const nextData = rawData[index + 1]
+      const targetDayTime = dayTime + (1000 * 60 * 60 * 24 * 2)
+      const nextDayTime = dayTime + (1000 * 60 * 60 * 24)
+
+      const isToday = Date.now() < nextDayTime
+      const hasDataBeforeTarget = nextData && parseInt(nextData.time) < targetDayTime
+
+      if (!isToday && !hasDataBeforeTarget && (prev.price !== price || prev.prom !== prom)) {
+        result.push({price, prom, dayTime: nextDayTime})
+      }
+    }
+  })
+  return result
 }
 
 

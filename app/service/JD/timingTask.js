@@ -5,10 +5,11 @@ const TIME_OFF = -3600000 // 北京(东8)时区时差值
 const DAY_TIME = 1000 * 60 * 60 * 24
 
 const getNextTimeFrom = (time) => {
-  return time + TASK_INTERVAL - ((time + TIME_OFF) % TASK_INTERVAL)
+  /* 每隔3小时（3的整数倍小时）的整点过5分钟 */
+  return time + TASK_INTERVAL - ((time + TIME_OFF) % TASK_INTERVAL) + 1000 * 60 * 5
 }
 const getNextSupplyTimeFrom = (time) => {
-  const timeAfterZero = 1000 * 60 * 10 // 超过10分钟，下面计算结果是每天的0点10分
+  const timeAfterZero = 1000 * 60 * 15 // 超过15分钟，下面计算结果是每天的0点10分
   return time - (time % DAY_TIME) + 57600000 + DAY_TIME + timeAfterZero
 }
 
