@@ -1,6 +1,8 @@
 const {MongoClient, Long} = require('mongodb');
 const assert = require('assert')
-const DB_URL = 'mongodb://localhost:27017';
+
+const [,, user, pwd] = process.argv
+const DB_URL = `mongodb://${user}:${pwd}@localhost:27017/?authMechanism=SCRAM-SHA-1`;
 
 const client = new MongoClient(DB_URL);
 

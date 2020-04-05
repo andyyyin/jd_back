@@ -62,11 +62,6 @@ const loadProducts = async (id) => {
     // todo priceInfo.m 是什么
 
     const {coupons} = await api.getTicket(id, cid)
-    /* temp debug */
-    if ((id+'') === '100003312839') {
-      console.log(coupons)
-    }
-    /* ---------- */
     const tickets = []
     coupons.forEach(c => {
       const {quota, discount} = c
