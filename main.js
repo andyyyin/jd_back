@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const route = require('./app/route')
 const DB = require('./app/dataBase')
 const jd = require('./app/service/JD')
+const auth = require('./app/service/Authorization')
 const assert = require('assert')
 
 const PORT = 3389
@@ -13,10 +14,25 @@ const run = async () => {
   /* --- 连接数据库 --- */
   await DB.connect()
 
+  /* --- 获取权限列表 --- */
+  const authList = await auth.getAuthList()
+
   /* --- 定时任务启动 ---*/
   jd.startTimingTask()
 
-  /* --- 服务器配置 --- */
+  /* --- 权限控制 --- */
+  app.use((req, res, next) => {
+    const {authorization} = req.headers
+    const auth = authList.find(a => a.deviceId === authorization)
+    if (auth) {
+      req.user = auth.user
+      next()
+    } else {
+      res.status(401).send('No Access')
+    }
+  })
+
+  /* --- 数据格式中间件 --- */
   app.use((req, res, next) => {
     // 设置是否运行客户端设置 withCredentials
     // 第二个参数表示允许跨域的域名，* 代表所有域名

@@ -4,11 +4,35 @@ const store = require("./storage")
 const timingTask = require('./timingTask')
 const state = require('./state')
 
-const _productMap = {};
+let _productMap = {};
+let _userMap = {};
 
 const loadProductIds = async () => {
   let products = await store.loadProductList() || []
-  return products.map(p => p.pid)
+  let idMap = {};
+  let userMap = {};
+  products.forEach(({pid, user}) => {
+    idMap[pid] = true
+    if (userMap[user]) {
+      userMap[user].push(pid)
+    } else {
+      userMap[user] = [pid]
+    }
+  })
+  _userMap = userMap
+  return Object.keys(idMap)
+}
+
+const getProductListByUser = (user) => {
+  const idList = _userMap[user]
+  const result = []
+  if (!idList) return result
+  idList.forEach(id => {
+    let product = _productMap[id]
+    if (!product) return
+    result.push(product)
+  })
+  return result
 }
 
 const getPromotion = promotionData => {
@@ -30,17 +54,17 @@ const saveRecords = async () => {
   return store.checkAndPushNewRecords(list)
 }
 
-const loadProducts = async (id) => {
+const loadProducts = async (newId) => {
   state.startPending()
 
-  const ids = id ?
-    [id] :
+  const ids = newId ?
+    [newId] :
     await loadProductIds()
 
+  let newProductMap = {}
+
   const product = await api.getProduct2(ids.join(','));
-  // console.log(product)
   const priceList = await api.getPrice(ids.join(','))
-  // console.log(priceList)
 
   for (let i = 0; i < ids.length; i++) {
     const id = ids[i];
@@ -66,7 +90,7 @@ const loadProducts = async (id) => {
     coupons.forEach(c => {
       const {quota, discount} = c
       let text = ' - 未知 - '
-      if (quota && discount) {
+      if (!isNaN(quota) && !isNaN(discount)) {
         text = `满${c.quota}减${c.discount}`
       }
       if (!tickets.find(t => t.quota === quota && t.discount === discount)) {
@@ -77,9 +101,17 @@ const loadProducts = async (id) => {
     const promotionData = await api.getPromotion(id, cid)
     const promotions = getPromotion(promotionData)
 
-    _productMap[id] = {id, name, imgUrl, color, cid, shop, shopId, price, originPrice,
+    newProductMap[id] = {id, name, imgUrl, color, cid, shop, shopId, price, originPrice,
       tickets, promotions, isDown}
   }
+
+  // 在全量查询的情况直接更新 productMap 是为了能够定期清理已经被所有用户删除的商品
+  if (newId) {
+    Object.assign(_productMap, newProductMap)
+  } else {
+    _productMap = newProductMap
+  }
+
   analysis(_productMap)
   await saveRecords(_productMap)
 
@@ -92,21 +124,28 @@ const loadProducts = async (id) => {
 
 const jd = {}
 
-jd.addProductId = async (id) => {
-  await store.addProduct(id)
+jd.addProductId = async (id, user) => {
+  if (!_userMap[user]) _userMap[user] = []
+  if (_userMap[user].includes(id)) {
+    return getProductListByUser(user)
+  }
+  await store.addProduct(id, user)
+  _userMap[user].push(id)
   await loadProducts(id)
-  return _productMap
+  return getProductListByUser(user)
 }
 
-jd.deleteProduct = async (id) => {
-  await store.deleteProduct(id)
-  delete _productMap[id]
-  return _productMap
+jd.deleteProduct = async (id, user) => {
+  await store.deleteProduct(id, user)
+  const list = _userMap[user];
+  list.splice(list.findIndex(item => item === id), 1)
+  // 这里不再手动清理 productMap 而是随定期更新自动清理
+  return getProductListByUser(user)
 }
 
 jd.getProduct = (id) => _productMap[id]
 
-jd.getAllProduct = () => _productMap
+jd.getProductListByUser = getProductListByUser
 
 jd.startTimingTask = () => {
   timingTask.start(loadProducts)

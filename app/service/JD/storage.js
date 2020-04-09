@@ -6,9 +6,10 @@ const PRODUCT_LIST_COL = 'product_list'
 const PRODUCT_DATA_COL = 'product_data'
 const TIMING_TASK_COL = 'task_record'
 
-const newConfig = (pid) => {
+const newConfig = (pid, user) => {
   return {
     pid,
+    user,
     active: true,
     start: Date.now()
   }
@@ -18,15 +19,15 @@ const loadProductList = () => {
   return DB.getData({active: true}, PRODUCT_LIST_COL, DB_NAME)
 }
 
-const addProduct = async (pid) => {
-  let query = {pid}
-  let set = newConfig(pid)
+const addProduct = async (pid, user) => {
+  let query = {pid, user}
+  let set = newConfig(pid, user)
   // todo 添加已存在并且激活中的商品，会覆盖start time
   return DB.upsertOne(query, set, PRODUCT_LIST_COL, DB_NAME)
 }
 
-const deleteProduct = async (pid) => {
-  let query = {pid}
+const deleteProduct = async (pid, user) => {
+  let query = {pid, user}
   let set = {active: false, end: Date.now()}
   return DB.updateOne(query, set, PRODUCT_LIST_COL, DB_NAME)
 }
