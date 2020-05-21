@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>CHAOS</title>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <style>
+    .main-container {
+    }
+    .main-input {
+      display: block;
+    }
+    .main-input input {
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      height: 36px;
+      width: 550px;
+      text-align: center;
+      font-size: 24px;
+    }
+    .main-input input::placeholder {
+      color: #ddd;
+    }
+  </style>
+</head>
+<body style="height: 100vh;">
+<div style="display:flex; justify-content:center; align-items:center; width: 100%; height: 100%;">
+  <div class="main-container">
+    <label class="main-input" style="margin-bottom: 15px;">
+      <input type="text" id="name" placeholder="账户名" autocomplete="username" onblur="submit()">
+    </label>
+    <label class="main-input">
+      <input type="text" id="code" placeholder="通行证" autocomplete="device_code" onblur="submit()">
+    </label>
+  </div>
+</div>
+<script>
+  const submit = () => {
+    const code = document.getElementById('code').value;
+    axios.get('/jd/auth', {headers: {Authorization: code}}).then(() => {
+      localStorage.setItem('jd_auth', code)
+      window.location.href = "jd/list.html";
+    }).catch(error => {
+      const {status, data} = error.response
+      if (status === 401) {
+        alert('无权限访问')
+      } else if (status === 500 && data === 'pending') {
+        alert('pending')
+      } else {
+        alert('error')
+      }
+    })
+  }
+</script>
+</body>
+</html>

@@ -4,7 +4,6 @@ const bodyParser = require('body-parser')
 const route = require('./app/route')
 const DB = require('./app/dataBase')
 const jd = require('./app/service/JD')
-const auth = require('./app/service/Authorization')
 const assert = require('assert')
 
 const PORT = 3389
@@ -14,23 +13,8 @@ const run = async () => {
   /* --- 连接数据库 --- */
   await DB.connect()
 
-  /* --- 获取权限列表 --- */
-  const authList = await auth.getAuthList()
-
   /* --- 定时任务启动 ---*/
   jd.startTimingTask()
-
-  /* --- 权限控制 --- */
-  app.use((req, res, next) => {
-    const {authorization} = req.headers
-    const auth = authList.find(a => a.deviceId === authorization)
-    if (auth) {
-      req.user = auth.user
-      next()
-    } else {
-      res.status(401).send('No Access')
-    }
-  })
 
   /* --- 数据格式中间件 --- */
   app.use((req, res, next) => {
@@ -43,14 +27,15 @@ const run = async () => {
     // res.header('Content-Type', 'application/json;charset=utf-8') // 这里全局设置，会导致html无法自动渲染
     next()
   })
-  app.use(express.static('./'))
+  app.use('/page', express.static('web'));
   // 下面是让api可以在application/json格式请求参数下读取数据
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
+
   /* --- 路由配置 --- */
-  app.get('/', (req, res) => res.sendFile('/index.html'))
-  route(app)
+  app.get('/', (req, res) => res.redirect('/page'))
+  await route(app)
 
   /* --- 启动 --- */
   app.listen(PORT, () => {

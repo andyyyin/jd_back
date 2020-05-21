@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chaos</title>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="/page/js/jd.js"></script>
+  <style>
+    .product-container{
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .product-item-container{
+      display: flex;
+      flex: 1;
+      min-width: 900px;
+      border-bottom: 1px solid #ccc;;
+    }
+    .product-img{
+      width: 160px;
+      height: 160px;
+      flex-shrink: 0;
+    }
+    .ticket-tag{
+      background-color: red;
+      font-size: 12px;
+      color: #fff;
+      line-height: 18px;
+      padding: 0 5px;
+      border-radius: 3px;
+      margin-right: 4px;
+    }
+    .price-text{
+      font-size: 24px;
+      line-height: 28px;
+      font-weight: 900;
+      width: 140px;
+    }
+  </style>
+</head>
+<body>
+<div id="template">
+  <div v-if="productList" class="product-container">
+    <div v-for="product in productList" :key="product.id" class="product-item-container">
+      <img :src="product.imgUrl" alt="" class="product-img">
+      <div style="display:flex; flex-direction: column; padding: 8px;">
+        <div style="flex: 1">
+          <div style="font-weight: 600; margin-bottom: 5px;">
+            {{product.name}}
+          </div>
+          <div style="color: red; margin-bottom: 5px;">
+            {{product.promotions.reduce((r, p) => r + p.content + '。', '')}}
+          </div>
+          <div style="display:flex; flex-wrap: wrap;">
+            <div v-for="(ticket, index) in product.tickets" :key="index" class="ticket-tag">
+              {{ticket.text}}
+            </div>
+          </div>
+        </div>
+        <div v-if="product.isDown">
+          下架
+        </div>
+        <div v-else style="display:flex;">
+          <div class="price-text">
+            ¥{{product.p_price || product.price}}
+          </div>
+          <div v-if="product.promRank && product.promRank[0]" class="price-text" style="color: green">
+            ¥{{product.promRank[0].ratePrice}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const app = new Vue({
+    el: '#template',
+    data() {
+      return {
+        productList: null
+      }
+    },
+    methods: {
+
+    },
+    created () {
+      getProductList().then(r => this.productList = r)
+    }
+  })
+</script>
+</body>
+</html>

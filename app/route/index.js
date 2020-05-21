@@ -1,14 +1,29 @@
 const jd = require('../service/JD')
+const auth = require('../service/Authorization')
 
-module.exports = function(app, db) {
+module.exports = async (app, db) => {
+
+  /* --- 获取权限列表 --- */
+  const authList = await auth.getAuthList()
 
   app.use('/jd*', (req, res, next) => {
+    const {authorization} = req.headers
+    const auth = authList.find(a => a.deviceId === authorization)
+    if (!auth) {
+      res.status(401).send('No Access')
+      return
+    }
+    req.user = auth.user
     if (jd.state.isPending()) {
       res.status(500).send('pending')
-    } else {
-      next()
+      return
     }
+    next()
   });
+
+  app.get('/jd/auth', (req, res) => {
+    res.send('ok')
+  })
 
   app.get('/jd', (req, res) => {
     res.send(jd.getProductListByUser(req.user))
