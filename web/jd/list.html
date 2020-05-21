@@ -37,6 +37,28 @@
       font-weight: 900;
       width: 140px;
     }
+    .detail-container{
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, .7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .detail-container section{
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .detail-container .detail-block{
+      margin-bottom: 5px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #bbb;
+    }
   </style>
 </head>
 <body>
@@ -62,15 +84,39 @@
           下架
         </div>
         <div v-else style="display:flex;">
-          <div class="price-text">
-            ¥{{product.p_price || product.price}}
-          </div>
-          <div v-if="product.promRank && product.promRank[0]" class="price-text" style="color: green">
-            ¥{{product.promRank[0].ratePrice}}
+          <div style="display:flex; cursor: pointer" @click="showDetail(product.id)">
+            <div class="price-text">
+              ¥{{product.p_price || product.price}}
+            </div>
+            <div v-if="product.promRank && product.promRank[0]" class="price-text" style="color: green">
+              ¥{{product.promRank[0].ratePrice}}
+            </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
+  <div v-if="detailId" @click="detailId = null" class="detail-container">
+    <section @click.stop>
+      <div v-if="detailProduct.moneyOffs && detailProduct.moneyOffs.length" class="detail-block">
+        <div>满减：</div>
+        <div v-for="({ratePrice, supply, isCount}, index) in detailProduct.moneyOffs" :key="index">
+          凑{{isCount ? `${supply}件` : `¥${supply}`}}，单价约：¥{{ratePrice}}
+        </div>
+      </div>
+      <div v-if="detailProduct.tickets && detailProduct.tickets.length" class="detail-block">
+        <div>优惠券：</div>
+        <div v-for="({ratePrice, supply}, index) in detailProduct.tickets" :key="index">
+          凑{{supply}}，单价约：¥{{ratePrice}}
+        </div>
+      </div>
+      <div v-if="detailProduct.combos && detailProduct.combos.length" class="detail-block">
+        <div>组合：</div>
+        <div v-for="({ratePrice, supply}, index) in detailProduct.combos" :key="index">
+          凑{{supply}}，单价约：¥{{ratePrice}}
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 <script>
@@ -78,11 +124,19 @@
     el: '#template',
     data() {
       return {
-        productList: null
+        productList: null,
+        detailId: null,
+      }
+    },
+    computed: {
+      detailProduct () {
+        return this.productList.find(p => p.id === this.detailId)
       }
     },
     methods: {
-
+      showDetail (id) {
+        this.detailId = id
+      }
     },
     created () {
       getProductList().then(r => this.productList = r)
