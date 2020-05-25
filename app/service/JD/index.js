@@ -150,8 +150,8 @@ jd.getProductListByUser = getProductListByUser
 jd.startTimingTask = () => {
   timingTask.start(loadProducts)
 }
-jd.getProductHistory = (id) => {
-  return store.getProductHistory(id)
+jd.getProductHistory = (pid, raw) => {
+  return store.getProductHistory(pid, raw)
 }
 jd.state = state
 

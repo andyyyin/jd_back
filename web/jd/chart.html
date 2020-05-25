@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@4.7.0/dist/echarts.min.js"></script>
+  <script src="/page/js/jd.js"></script>
+</head>
+<body style="margin: 0;">
+<div id="main" style="width: 100vw; height:100vh;"></div>
+<script type="text/javascript">
+  // 基于准备好的dom，初始化echarts实例
+  const myChart = echarts.init(document.getElementById('main'));
+
+  const pid = window.location.search.match(/id=(\d+)/i)[1]
+  loadHistory(pid, true).then(history => {
+    console.log(history)
+
+    const dataPrice = []
+    const dataProm = []
+    history.forEach(({time, price, prom}) => {
+      dataPrice.push([time, Number(price)])
+      dataProm.push([time, Number(prom || price)])
+    })
+
+
+    const option = {
+      title: {
+        text: '完整数据记录'
+      },
+      tooltip: {
+        trigger: 'axis',
+      },
+      legend: {
+        data: [{
+          name: 'PRICE',
+        }, {
+          name: 'PROM',
+        }]
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      dataZoom: {
+        type: 'inside'
+      },
+      xAxis: {
+        type: 'time',
+        boundaryGap: false,
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          name: 'PRICE',
+          type: 'line',
+          step: 'end',
+          data: dataPrice,
+          z: 10,
+        },
+        {
+          name: 'PROM',
+          type: 'line',
+          step: 'end',
+          lineStyle: {
+            color: '#090'
+          },
+          itemStyle: {
+            color: '#090'
+          },
+          data: dataProm
+        },
+      ]
+    };
+
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+  })
+
+</script>
+</body>
+</html>

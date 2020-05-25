@@ -58,9 +58,11 @@ const pushTimingTask = async (record) => {
   return DB.insertData(record, TIMING_TASK_COL, DB_NAME)
 }
 
-const getProductHistory = async (pid) => {
+const getProductHistory = async (pid, raw) => {
   let rawData = await DB.getData({pid}, PRODUCT_DATA_COL, DB_NAME)
   const result = []
+
+  if (raw) return rawData
 
   rawData.forEach(({price, prom, time}, index) => {
     if (!prom) prom = price

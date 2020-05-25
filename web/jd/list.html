@@ -53,11 +53,15 @@
       padding: 15px;
       border-radius: 10px;
     }
-
     .detail-container .detail-block{
       margin-bottom: 5px;
       padding-bottom: 5px;
       border-bottom: 1px solid #bbb;
+    }
+    .detail-button{
+      color: blue;
+      cursor: pointer;
+      font-size: 18px;
     }
   </style>
 </head>
@@ -66,7 +70,7 @@
   <div v-if="productList" class="product-container">
     <div v-for="product in productList" :key="product.id" class="product-item-container">
       <img :src="product.imgUrl" alt="" class="product-img">
-      <div style="display:flex; flex-direction: column; padding: 8px;">
+      <div style="display:flex; flex-direction: column; padding: 8px; flex: 1">
         <div style="flex: 1">
           <div style="font-weight: 600; margin-bottom: 5px;">
             {{product.name}}
@@ -83,13 +87,18 @@
         <div v-if="product.isDown">
           下架
         </div>
-        <div v-else style="display:flex;">
-          <div style="display:flex; cursor: pointer" @click="showDetail(product.id)">
+        <div v-else style="display:flex; background-color: #f4f4f4">
+          <div style="display:flex; cursor: pointer; flex: 1;" @click="showDetail(product.id)">
             <div class="price-text">
               ¥{{product.p_price || product.price}}
             </div>
             <div v-if="product.promRank && product.promRank[0]" class="price-text" style="color: green">
               ¥{{product.promRank[0].ratePrice}}
+            </div>
+          </div>
+          <div style="flex: 1">
+            <div class="detail-button" @click="goChart(product.id)">
+              CHART >>
             </div>
           </div>
         </div>
@@ -136,6 +145,9 @@
     methods: {
       showDetail (id) {
         this.detailId = id
+      },
+      goChart (id) {
+        window.location.href = 'chart.html?id=' + id;
       }
     },
     created () {

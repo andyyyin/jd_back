@@ -54,7 +54,8 @@ module.exports = async (app, db) => {
 
   app.get('/jd/:pid/history', (req, res) => {
     const pid = req.params.pid + ''
-    jd.getProductHistory(pid).then(result => {
+    const raw = !!req.query.raw
+    jd.getProductHistory(pid, raw).then(result => {
       res.send(result)
     }).catch(err => {
       res.send(err)

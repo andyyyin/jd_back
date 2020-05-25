@@ -70,6 +70,6 @@ const deleteProduct = (pid) => {
   return postJD('/delete', {pid})
 }
 
-const loadHistory = (pid) => {
-  return getJD(`/${pid}/history`)
+const loadHistory = (pid, raw) => {
+  return getJD(`/${pid}/history${raw ? '?raw=1' : ''}`)
 }
