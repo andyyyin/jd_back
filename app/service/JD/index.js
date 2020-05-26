@@ -11,12 +11,12 @@ const loadProductIds = async () => {
   let products = await store.loadProductList() || []
   let idMap = {};
   let userMap = {};
-  products.forEach(({pid, user}) => {
+  products.forEach(({pid, user, sub}) => {
     idMap[pid] = true
     if (userMap[user]) {
-      userMap[user].push(pid)
+      userMap[user].push({pid, sub})
     } else {
-      userMap[user] = [pid]
+      userMap[user] = [{pid, sub}]
     }
   })
   _userMap = userMap
@@ -27,9 +27,12 @@ const getProductListByUser = (user) => {
   const idList = _userMap[user]
   const result = []
   if (!idList) return result
-  idList.forEach(id => {
-    let product = _productMap[id]
+  idList.forEach(({pid, sub}) => {
+    let product = _productMap[pid]
     if (!product) return
+    // 这里 sub（订阅价）值会直接修改到productMap里面不是很好，有机会想办法优化这里
+    // sub 不管有没有值都要覆盖原有值，防止不同用户数据相互影响
+    product.sub = sub
     result.push(product)
   })
   return result
@@ -124,22 +127,30 @@ const loadProducts = async (newId) => {
 
 const jd = {}
 
-jd.addProductId = async (id, user) => {
+jd.addProductId = async (pid, user) => {
   if (!_userMap[user]) _userMap[user] = []
-  if (_userMap[user].includes(id)) {
+  if (_userMap[user].find(u => u.pid === pid)) {
     return getProductListByUser(user)
   }
-  await store.addProduct(id, user)
-  _userMap[user].push(id)
-  await loadProducts(id)
+  await store.addProduct(pid, user)
+  _userMap[user].push({pid})
+  await loadProducts(pid)
   return getProductListByUser(user)
 }
 
-jd.deleteProduct = async (id, user) => {
-  await store.deleteProduct(id, user)
+jd.deleteProduct = async (pid, user) => {
+  await store.deleteProduct(pid, user)
   const list = _userMap[user];
-  list.splice(list.findIndex(item => item === id), 1)
+  list.splice(list.findIndex(u => u.pid === pid), 1)
   // 这里不再手动清理 productMap 而是随定期更新自动清理
+  return getProductListByUser(user)
+}
+jd.setSubscription = async (pid, user, sub) => {
+  if (!_userMap[user]) return
+  let item = _userMap[user].find(u => u.pid === pid)
+  if (!item) return
+  item.sub = sub
+  await store.setSubscription(pid, user, sub)
   return getProductListByUser(user)
 }
 

@@ -32,6 +32,12 @@ const deleteProduct = async (pid, user) => {
   return DB.updateOne(query, set, PRODUCT_LIST_COL, DB_NAME)
 }
 
+const setSubscription = async (pid, user, sub) => {
+  let query = {pid, user}
+  let set = {sub}
+  return DB.updateOne(query, set, PRODUCT_LIST_COL, DB_NAME)
+}
+
 const checkAndPushNewRecords = async (records) => {
   if (!records || !records.length) return null
   const pushList = []
@@ -104,6 +110,7 @@ module.exports = {
   deleteProduct,
   checkAndPushNewRecords,
   getLastTask,
+  setSubscription,
   pushTimingTask,
   getProductHistory,
 }

@@ -63,6 +63,12 @@
       cursor: pointer;
       font-size: 18px;
     }
+    .sub-text{
+      font-size: 18px;
+      padding-left: 10px;
+    }
+    .sub-input{
+    }
   </style>
 </head>
 <body>
@@ -88,7 +94,7 @@
           下架
         </div>
         <div v-else style="display:flex; background-color: #f4f4f4">
-          <div style="display:flex; cursor: pointer; flex: 1;" @click="showDetail(product.id)">
+          <div style="display:flex; cursor: pointer; flex: 4; padding-left: 4px;" @click="showDetail(product.id)">
             <div class="price-text">
               ¥{{product.p_price || product.price}}
             </div>
@@ -96,7 +102,15 @@
               ¥{{product.promRank[0].ratePrice}}
             </div>
           </div>
-          <div style="flex: 1">
+          <div style="flex: 3; cursor: pointer; background-color: #ddd; border: 2px solid #f4f4f4" @click="editSubId = product.id">
+            <label v-if="editSubId === product.id">
+              <input type="text" class="sub-input" @blur="submitSubscribe" v-model="subInput" v-focus :placeholder="product.sub || '订阅'">
+            </label>
+            <span class="sub-text" v-else :style="{color: product.sub && product.sub > 0 ? 'red' : '#333'}">
+              {{product.sub && product.sub > 0 ? ('已订阅 ¥' + product.sub) : '+ 订阅'}}
+            </span>
+          </div>
+          <div style="flex: 3; padding-left: 10px;">
             <div class="detail-button" @click="goChart(product.id)">
               CHART >>
             </div>
@@ -129,12 +143,19 @@
   </div>
 </div>
 <script>
+  Vue.directive('focus', {
+    inserted: function (el) {
+      el.focus()
+    }
+  })
   const app = new Vue({
     el: '#template',
     data() {
       return {
         productList: null,
         detailId: null,
+        editSubId: null,
+        subInput: null,
       }
     },
     computed: {
@@ -148,7 +169,21 @@
       },
       goChart (id) {
         window.location.href = 'chart.html?id=' + id;
-      }
+      },
+      submitSubscribe () {
+        if (!this.subInput) {
+          this.resetSubEdit()
+          return
+        }
+        updateSubscribe(this.editSubId, this.subInput).then(productList => {
+          this.productList = productList
+          this.resetSubEdit()
+        })
+      },
+      resetSubEdit () {
+        this.subInput = null
+        this.editSubId = null
+      },
     },
     created () {
       getProductList().then(r => this.productList = r)

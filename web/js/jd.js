@@ -70,6 +70,10 @@ const deleteProduct = (pid) => {
   return postJD('/delete', {pid})
 }
 
+const updateSubscribe = (pid, value) => {
+  return postJD('/subscribe', {pid, value})
+}
+
 const loadHistory = (pid, raw) => {
   return getJD(`/${pid}/history${raw ? '?raw=1' : ''}`)
 }

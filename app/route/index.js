@@ -47,6 +47,16 @@ module.exports = async (app, db) => {
     })
   })
 
+  app.post('/jd/subscribe', (req, res) => {
+    const pid = req.body.pid + ''
+    const value = req.body.value + ''
+    jd.setSubscription(pid, req.user, value).then(productList => {
+      res.send(productList)
+    }).catch(err => {
+      res.send(err)
+    })
+  })
+
   app.get('/jd/:pid', (req, res) => {
     const pid = req.params.pid
     res.send(jd.getProduct(pid))
