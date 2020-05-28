@@ -3,6 +3,7 @@ const analysis = require("./analysis")
 const store = require("./storage")
 const timingTask = require('./timingTask')
 const state = require('./state')
+const notification = require('./notification')
 
 let _productMap = {};
 let _userMap = {};
@@ -117,8 +118,9 @@ const loadProducts = async (newId) => {
 
   analysis(_productMap)
   await saveRecords(_productMap)
-
   state.endPending()
+  notification.deal(_productMap, _userMap)
+
   return _productMap
 }
 
