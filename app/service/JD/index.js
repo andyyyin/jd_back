@@ -4,6 +4,7 @@ const store = require("./storage")
 const timingTask = require('./timingTask')
 const state = require('./state')
 const notification = require('./notification')
+const sort = require('./sort')
 
 let _productMap = {};
 let _userMap = {};
@@ -36,6 +37,7 @@ const getProductListByUser = (user) => {
     product.sub = sub
     result.push(product)
   })
+  // todo result.sort(sort.byPriceRelativePosition)
   return result
 }
 
@@ -82,6 +84,7 @@ const loadProducts = async (newId) => {
     const cid = info.rank3
     const shop = info.seller
     const shopId = info.shopId
+    const brand = shop.substring(0, shop.indexOf('京东'))
 
     const priceInfo = priceList.find(p => p.id === 'J_' + id)
     const originPrice = priceInfo.op
@@ -105,7 +108,7 @@ const loadProducts = async (newId) => {
     const promotionData = await api.getPromotion(id, cid)
     const promotions = getPromotion(promotionData)
 
-    newProductMap[id] = {id, name, imgUrl, color, cid, shop, shopId, price, originPrice,
+    newProductMap[id] = {id, name, imgUrl, color, cid, shop, brand, shopId, price, originPrice,
       tickets, promotions, isDown}
   }
 

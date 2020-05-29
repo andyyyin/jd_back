@@ -12,10 +12,10 @@ const send = ({title, content, address}) => {
       });
 
       let mailOptions = {
-        from: 'Andy Notice JD',
+        from: 'AndyNoticeJD<ycwd_test@163.com>',
         to: address,
         subject: title || '未设置标题的邮件',
-        html: `<b>${content || ''}</b>`
+        html: `<div>${content || ''}</div>`
       };
 
       transporter.sendMail(mailOptions, (error, info) => {
