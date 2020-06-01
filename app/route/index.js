@@ -6,14 +6,44 @@ module.exports = async (app, db) => {
   /* --- 获取权限列表 --- */
   const authList = await auth.getAuthList()
 
-  app.use('/jd*', (req, res, next) => {
+  const checkAuth = (req, res) => {
     const {authorization} = req.headers
     const auth = authList.find(a => a.deviceId === authorization)
     if (!auth) {
       res.status(401).send('No Access')
-      return
+      return false
     }
     req.user = auth.user
+    return true
+  }
+
+  /* --- user --- */
+
+  app.use('/user*', (req, res, next) => {
+    if(!checkAuth(req, res)) return
+    next()
+  });
+
+  app.get('/user/config', (req, res) => {
+    auth.getUserConfig(req.user).then(config => {
+      res.send(config)
+    }).catch(err => {
+      res.send(err)
+    })
+  })
+
+  app.post('/user/set-config', (req, res) => {
+    auth.setUserConfig(req.user, req.body).then(config => {
+      res.send(config)
+    }).catch(err => {
+      res.send(err)
+    })
+  })
+
+  /* --- jd --- */
+
+  app.use('/jd*', (req, res, next) => {
+    if(!checkAuth(req, res)) return
     if (jd.state.isPending()) {
       res.status(500).send('pending')
       return

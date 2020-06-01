@@ -60,6 +60,18 @@ const getData = (query, colName, dbName) => {
   })
 }
 
+const getOne = (query, colName, dbName) => {
+  assert.equal(typeof colName, 'string');
+  return new Promise(resolve => {
+    const col = getDB(dbName).collection(colName)
+    query = query || {}
+    col.findOne(dateFilter(query), {}, function(err, result) {
+      assert.equal(err, null);
+      resolve(result)
+    });
+  })
+}
+
 const getLastOne = (query, colName, dbName) => {
   assert.equal(typeof colName, 'string');
   return new Promise(resolve => {
@@ -111,6 +123,7 @@ const upsertOne = (query, set, colName, dbName) => {
 module.exports = {
   connect,
   getData,
+  getOne,
   insertData,
   updateOne,
   upsertOne,

@@ -65,7 +65,12 @@ const pushTimingTask = async (record) => {
 }
 
 const getProductHistory = async (pid, raw) => {
-  let rawData = await DB.getData({pid}, PRODUCT_DATA_COL, DB_NAME)
+  let query = {pid}
+  if (!raw) {
+    let twoMonthAgo = Date.now() - (1000 * 60 * 60 * 24 * 60)
+    query.time = {$gt: twoMonthAgo}
+  }
+  let rawData = await DB.getData(query, PRODUCT_DATA_COL, DB_NAME)
   const result = []
 
   if (raw) return rawData
