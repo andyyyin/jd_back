@@ -161,6 +161,8 @@ jd.setSubscription = async (pid, user, sub) => {
 
 jd.getProduct = (id) => _productMap[id]
 
+jd.checkId = (id) => api.getProduct2(id)
+
 jd.getProductListByUser = getProductListByUser
 
 jd.startTimingTask = () => {

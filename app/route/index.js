@@ -92,6 +92,15 @@ module.exports = async (app, db) => {
     res.send(jd.getProduct(pid))
   })
 
+  app.get('/jd/check-id/:pid', (req, res) => {
+    const pid = req.params.pid
+    jd.checkId(pid).then(result => {
+      res.send(result)
+    }).catch(err => {
+      res.send(err)
+    })
+  })
+
   app.get('/jd/:pid/history', (req, res) => {
     const pid = req.params.pid + ''
     const raw = !!req.query.raw

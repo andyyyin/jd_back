@@ -7,6 +7,46 @@
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
   <script src="/page/js/jd.js"></script>
   <style>
+    .top-input-row{
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      padding-left: 15px;
+      position: relative;
+    }
+    .top-input-row input{
+      flex: 1;
+      border: none;
+      font-size: 18px;
+      line-height: 36px;
+    }
+    .top-input-row input::placeholder{
+      color: #cccccc;
+    }
+    .top-input-row input:focus{
+      outline: none;
+    }
+    .top-input-row .button{
+      line-height: 38px;
+      padding: 0 30px;
+      color: #fff;
+      background-color: darkblue;
+      cursor: pointer;
+      user-select: none;
+    }
+    .top-input-row .name-show{
+      position: absolute;
+      top: 0;
+      height: 38px;
+      left: 160px;
+      right: 140px;
+      font-size: 18px;
+      line-height: 38px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      color: darkblue;
+      text-align: right;
+    }
     .product-container{
       display: flex;
       flex-wrap: wrap;
@@ -15,7 +55,9 @@
       display: flex;
       flex: 1;
       min-width: 900px;
-      border-bottom: 1px solid #ccc;;
+      border-bottom: 1px solid #ccc;
+      position: relative;
+      overflow: hidden;
     }
     .product-img{
       width: 160px;
@@ -69,10 +111,29 @@
     }
     .sub-input{
     }
+    .delete-button{
+      position: absolute;
+      top: -15px;
+      right: -15px;
+      height: 30px;
+      width: 30px;
+      background-color: red;
+      border-radius: 50%;
+      cursor: pointer;
+    }
   </style>
 </head>
-<body>
+<body style="margin: 0; padding: 0">
 <div id="template">
+  <div class="top-input-row">
+    <input type="text" placeholder="在这里输入商品id" v-model="addInput" @change="pidCheck" @input="()=>this.preAddName=null">
+    <div v-show="preAddName" class="button" @click="submitAddProduct">
+      确认添加
+    </div>
+    <div v-if="preAddName" class="name-show">
+      {{preAddName}}
+    </div>
+  </div>
   <div v-if="productList" class="product-container">
     <div v-for="product in productList" :key="product.id" class="product-item-container">
       <img :src="product.imgUrl" alt="" class="product-img">
@@ -117,6 +178,7 @@
           </div>
         </div>
       </div>
+      <div class="delete-button" @click="deleteProduct(product.id)"></div>
     </div>
   </div>
   <div v-if="detailId" @click="detailId = null" class="detail-container">
@@ -141,6 +203,7 @@
       </div>
     </section>
   </div>
+
 </div>
 <script>
   Vue.directive('focus', {
@@ -156,6 +219,9 @@
         detailId: null,
         editSubId: null,
         subInput: null,
+        addInput: null,
+        preAddName: null,
+        preDeleteId: null,
       }
     },
     computed: {
@@ -170,6 +236,12 @@
       goChart (id) {
         window.location.href = 'chart.html?id=' + id;
       },
+      deleteProduct (id) {
+        if (confirm(`确认删除${id}`)) {
+          this.productList = null
+          deleteProduct(id).then(r => this.productList = r)
+        }
+      },
       submitSubscribe () {
         if (!this.subInput) {
           this.resetSubEdit()
@@ -179,6 +251,20 @@
           this.productList = productList
           this.resetSubEdit()
         })
+      },
+      pidCheck () {
+        let pid = this.addInput
+        if (!pid) return
+        checkId(pid).then(product => {
+          if (!product || !product[pid]) return
+          this.preAddName = product[pid].name
+        })
+      },
+      submitAddProduct () {
+        if (!this.preAddName || !this.addInput) return
+        this.productList = null
+        let pid = this.addInput
+        addProductId(pid).then(r => this.productList = r)
       },
       resetSubEdit () {
         this.subInput = null
