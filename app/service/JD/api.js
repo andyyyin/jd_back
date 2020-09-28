@@ -104,6 +104,9 @@ api.getPromotion = async (id, cid) => {
   const result = await axios({
     url,
     method: 'get',
+    headers: {
+      'user-agent': 'Mozilla/5.0',
+    }
   });
   return result.data
 }
