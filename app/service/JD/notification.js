@@ -100,7 +100,12 @@ const deal = (productMap, userMap) => {
 
     if (noticeList.length && checkNoticeNewData(noticeList, user)) {
       noticeList.sort(itemSort)
-      createMailConfig(noticeList, user).then(MAIL.send)
+      if (process.env.NODE_ENV === 'debug') {
+        console.log('notice for user: ', user)
+        console.log(noticeList)
+      } else {
+        createMailConfig(noticeList, user).then(MAIL.send)
+      }
     }
     userNoticeLast[user] = {list: noticeList, time: Date.now()}
 

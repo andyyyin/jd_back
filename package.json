@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "listen": "node main.js"
+    "listen": "node main.js",
+    "debug": "NODE_ENV=debug node test.js"
   },
   "keywords": [],
   "author": "",

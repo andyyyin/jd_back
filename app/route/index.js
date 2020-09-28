@@ -1,7 +1,7 @@
 const jd = require('../service/JD')
 const auth = require('../service/Authorization')
 
-module.exports = async (app, db) => {
+module.exports = async (app) => {
 
   /* --- 获取权限列表 --- */
   const authList = await auth.getAuthList()
