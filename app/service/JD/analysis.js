@@ -124,7 +124,7 @@ const fillCombos = (product) => {
       let off = p.off + t.discount
       if (p.percent || p.isDaZhe) {
         let percent = p.isDaZhe ? (10 - p.off) * 10 : p.off
-        off = (least > price ? least : price) * (percent / 100) + t.discount
+        off = ((least > price ? least : price) - t.discount) * (percent / 100) + t.discount
       }
       if (p.repeat) {
         let repeatCountRaw = least / p.least
@@ -147,7 +147,9 @@ const fillCombos = (product) => {
       if (!p.isCount || (p.isCount && p.least === 1)) {
         pureOff = plusOrZero(off - supply)
       }
-      combos.push({least, off, supply, productOff, ratePrice, pureOff})
+
+      let text1 = p.text, text2 = t.text
+      combos.push({text1, text2, least, off, supply, productOff, ratePrice, pureOff})
     })
   })
   if (combos.length > 1) {
