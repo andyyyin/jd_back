@@ -88,7 +88,7 @@ const loadProducts = async (newId) => {
 
     const priceInfo = priceList.find(p => p.id === 'J_' + id)
     const originPrice = priceInfo.op
-    const price = priceInfo.tpp || priceInfo.p
+    let price = priceInfo.tpp || priceInfo.p
     const isDown = Number(price) < 0
     // todo priceInfo.m 是什么
 
@@ -107,6 +107,17 @@ const loadProducts = async (newId) => {
 
     const promotionData = await api.getPromotion(id, cid)
     const promotions = getPromotion(promotionData)
+
+    /* 限购优惠价情况 */
+    let {limitedBuy} = promotionData
+    if (limitedBuy && limitedBuy.promotionText) {
+      let {promotionText} = limitedBuy
+      let match = promotionText.match(/享受单件价￥([\d.]+)/)
+      if (match && match[1]) {
+        price = match[1]
+      }
+      promotions.push({content: promotionText})
+    }
 
     newProductMap[id] = {id, name, imgUrl, color, cid, shop, brand, shopId, price, originPrice,
       tickets, promotions, isDown}
